@@ -14,13 +14,16 @@
             });
 
             function saveScores(){
+                let today = new Date().toISOString().slice(0, 10);
+                let time = new Date().getTime();
+                console.log(time);
                 var scores = JSON.stringify(results);
                 scores = scores.replace("[","");
                 scores = scores.replace("]","");
                 var file = new Blob([scores], {type:'text/plain'});
                 const link = document.createElement("a");
                 link.href = URL.createObjectURL(file);
-                link.download = "results.csv";
+                link.download = today + "-" +  time +"-results.csv";
                 link.click();
                 URL.revokeObjectURL(link.href);
             }
