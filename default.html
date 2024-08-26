@@ -80,7 +80,8 @@
                         y1 = Math.floor((550 - (res[i-1]/rel * 520)));
                         x2 = Math.floor((550 - (520/res.length * (i+1))));
                         y2 = Math.floor((550 - (res[i]/rel * 520)));
-                        rhtml += "<line x1='" + x1 +"' y1='" + y1 + "' x2='" + x2 + "' y2='" + y2 +  "' style='stroke:black;stroke-width:2;'/>";
+                        
+                        rhtml += "<line x1='" + x1 +"' y1='" + y1 + "' x2='" + x2 + "' y2='" + y2 +  "' style='stroke:#a7a7a7;stroke-width:2;'/>";
                     }
                 }
 
@@ -98,7 +99,7 @@
                     if (i % 2 == 0){
                         txtcolor = "red";
                     }
-                    rhtml += "<circle cx='" + x + "' cy='" +  y + "' r='5' fill='"+ txtcolor + "'/><text x='"+ (x - 12) + "' y='" + (y + text_y) + "' fill='" + txtcolor + "' font-size='10px' >" + e + " ms</text>";
+                    rhtml += "<text x='"+ (x - 12) + "' y='" + (y + text_y) + "' fill='" + txtcolor + "' font-size='10px' >" + e + "ms</text><circle cx='" + x + "' cy='" +  y + "' r='5' fill='"+ txtcolor + "'/>";
                 });
 
 
@@ -113,17 +114,21 @@
                 });
             }
             function updateScore(){
-                avg = Math.floor(results.reduce(function(a,b) {return a + b},0)/results.length);
                 sorted = results.slice().sort();
-                median = 0;
-                if (results.length % 2 == 0){
-                    median = (sorted[((results.length)/2) -1] + sorted[results.length/2]) / 2; ;
-                }else{
-                    median = sorted[(results.length+1)/2 -1] ;
-                }
-                
+                $("#times").html("N: " + times + "</br> Median: " + Median(sorted) + "ms</br> Mean: " + Mean(sorted)  + "ms</br> 𝜎: " + std(sorted).toFixed(2));
+            }
 
-                $("#times").html("N: " + times + "</br> Median: " + Math.floor(median) + "ms</br> Mean: " + avg  + "ms</br> 𝜎: " + std(results).toFixed(2));
+            function Mean(res) {
+                return Math.floor(res.reduce(function(a,b) {return a + b},0)/results.length);
+            }
+
+            function Median(res) {
+                median = 0;
+                if (res.length % 2 == 0){
+                    return Math.floor((sorted[((res.length)/2) -1] + sorted[res.length/2]) / 2); ;
+                }else{
+                    return Math.floor(sorted[(res.length+1)/2 -1]) ;
+                }
             }
 
             function std(set){
