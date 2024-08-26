@@ -14,11 +14,13 @@
             });
 
             function saveScores(){
-                const scores = JSON.stringify(results);
+                var scores = JSON.stringify(results);
+                scores = scores.replace("[","");
+                scores = scores.replace("]","");
                 var file = new Blob([scores], {type:'text/plain'});
                 const link = document.createElement("a");
                 link.href = URL.createObjectURL(file);
-                link.download = "results.txt";
+                link.download = "results.csv";
                 link.click();
                 URL.revokeObjectURL(link.href);
             }
