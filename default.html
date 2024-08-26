@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="stylesheet" href="styles.css">
+        <script src="https://code.jquery.com/jquery-3.6.1.min.js" integrity="sha256-o88AwQnZB+VDvE9tvIXrMQaPlFFSUTR+nldQm1LuPXQ=" crossorigin="anonymous"></script>
+        <script>
+            var timeoutID;
+            var results = [];
+            var times = 0;
+            var avg = 0;
+
+            $(document).ready(function(){
+                begin();    
+            });
+
+            function begin(){
+                $("#middle").html("");
+                $("#middle").append("<div id='circle' class='circle start center text'>Click to Start</div>");
+                $("#circle").on("mousedown", function(){
+                    $("#circle").off("mousedown");
+                    start();  
+                });
+            }
+            function too_soon(){
+                $("#circle").removeClass("reaction");
+                $("#circle").addClass("too_soon");
+                $("#circle").html("Too soon!");
+                $("#circle").on("mousedown", function(){
+                    $("#circle").remove();
+                    begin();  
+                });
+            }
+
+            function start(){
+                $("#circle").removeClass("start");
+                $("#circle").addClass("reaction");
+                $("#circle").html("Ready...");
+                delay = (Math.random() * 3000) + 1000;
+                timeoutID = setTimeout(end, delay);
+
+                $("#circle").on("mousedown", function(){
+                    clearTimeout(timeoutID);
+                    $("#circle").off("mousedown");
+                    too_soon();
+                });       
+
+            }
+            function end(){
+
+                $("#circle").off("mousedown");
+                $("#circle").removeClass("reaction");
+                $("#circle").html("NOW!");
+                stime = new Date();
+                start_time = stime.getTime();
+
+                $("#circle").on("mousedown", function(){
+                    dtime = new Date();
+                    end_time = dtime.getTime();
+                    $("#circle").off("mousedown");
+                    result(start_time,end_time);
+                });
+                times++;
+            }
+
+            function result(start_time, end_time){
+                r = end_time - start_time;
+                $("#circle").html(r + " ms");
+                results.push(r);
+                $("#circle").html("");
+                $("#circle").removeClass("text");
+                let rhtml = "<div class='center-results'><svg width='550px' height='550px'>";
+                var index = 1;
+                temp = results;
+                rel = Math.max(...temp);
+                res = results.slice().reverse();
+                
+                for(let i=1;i < res.length; i++){
+                    if (res.length > 1){
+                        x1 = Math.floor((550 - (520/results.length * i)));
+                        y1 = Math.floor((550 - (res[i-1]/rel * 520)));
+                        x2 = Math.floor((550 - (520/res.length * (i+1))));
+                        y2 = Math.floor((550 - (res[i]/rel * 520)));
+                        rhtml += "<line x1='" + x1 +"' y1='" + y1 + "' x2='" + x2 + "' y2='" + y2 +  "' style='stroke:black;stroke-width:2;'/>";
+                    }
+                }
+
+                res.forEach((e, i) => {
+                    txtcolor = "blue";
+                    x = (550 - (520/results.length * index));
+                    y = (550 - (e/rel * 520));
+                    index++;
+                    
+                    if (e > res[i-1]){
+                        text_y = -15;
+                    }else{
+                        text_y = 15;
+                    }
+                    if (i % 2 == 0){
+                        txtcolor = "red";
+                    }
+                    rhtml += "<circle cx='" + x + "' cy='" +  y + "' r='5' fill='"+ txtcolor + "'/><text x='"+ (x - 12) + "' y='" + (y + text_y) + "' fill='" + txtcolor + "' font-size='10px' >" + e + " ms</text>";
+                });
+
+
+                rhtml += "</svg></div>";
+                $("#circle").html(rhtml);
+                updateScore();
+                    
+
+                $("#circle").on("mousedown", function(){
+                    $("#circle").off("mousedown");
+                    begin();
+                });
+            }
+            function updateScore(){
+                avg = Math.floor(results.reduce(function(a,b) {return a + b},0)/results.length);
+                sorted = results.slice().sort();
+                median = 0;
+                if (results.length % 2 == 0){
+                    median = (sorted[((results.length)/2) -1] + sorted[results.length/2]) / 2; ;
+                }else{
+                    median = sorted[(results.length+1)/2 -1] ;
+                }
+                
+
+                $("#times").html("N: " + times + "</br> Median: " + Math.floor(median) + "ms</br> Mean: " + avg  + "ms</br> 𝜎: " + std(results).toFixed(2));
+            }
+
+            function std(set){
+                mean = Math.floor(set.reduce(function(a,b) {return a + b},0)/set.length);
+                squares = [];
+                set.forEach(e => {
+                    s = (e - mean)**2;
+                    squares.push(s);
+                });
+                mean_squares = Math.floor(squares.reduce(function(a,b) {return a + b},0)/squares.length);
+
+                return Math.sqrt(mean_squares);
+            }
+        </script>
+        <style>
+            body {
+                    background-color: rgb(101, 101, 230);
+                }
+                svg {
+                    white-space: nowrap;
+                    user-select: none;
+                }
+                .center{
+                    margin-top: 5vh;
+                    margin-left: auto;
+                    margin-right: auto;
+                }
+                .center-results{
+                    position: absolute;
+                    margin-top: 125px;
+                    margin-left: 125px;
+                    z-index: 1;
+                    background-color: rgba(240, 240, 240, 0.61);
+                    border-radius: 25px;
+                }
+                .times{
+                    top: 10px;
+                    left: 10px;
+                    position: absolute;
+                    font-size: 30px;
+                    color: white;
+                    font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+                }
+                .circle {
+                    background-color: #4BD46A;
+                    border-radius : 400px;
+                    width: 800px;
+                    height: 800px;
+                    box-shadow: 0 0 50px black;
+                    z-index: 0;
+                }
+                .start {
+                    background-color: grey;
+                }
+                .reaction {
+                    box-shadow: 0 0 100px #Ce2626;
+                    background-color: #Ce2626;
+                    animation-name: blink;
+                    animation-duration: 0.25s;
+                    animation-iteration-count: 2;
+                    animation-direction: alternate;
+                }
+                @keyframes blink {
+                    from{box-shadow: 0 0 100px #Ce2626;}
+                    to{box-shadow: 0 0 100px #ff00dd;}
+                    
+                }
+                .too_soon {
+                    background-color: grey;
+                }
+                .text{
+                    font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+                    color: white;
+                    font-size: 25px;
+                    text-align: center;
+                    line-height: 775px;
+                    height:800px;
+                    user-select: none;
+                }
+
+        </style>
+    </head>
+    <body>
+        <div id="times" class="times">N: 0 </br>  Median: 0ms </br> Mean: 0ms </br> 𝜎: 0</div>
+        <div id="middle"></div>
+        </div>
+    </body>
+</html>
