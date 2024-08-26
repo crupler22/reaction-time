@@ -10,9 +10,18 @@
             var avg = 0;
 
             $(document).ready(function(){
-                begin();    
+                begin();   
             });
 
+            function saveScores(){
+                const scores = JSON.stringify(results);
+                var file = new Blob([scores], {type:'text/plain'});
+                const link = document.createElement("a");
+                link.href = URL.createObjectURL(file);
+                link.download = "results.txt";
+                link.click();
+                URL.revokeObjectURL(link.href);
+            }
             function begin(){
                 $("#middle").html("");
                 $("#middle").append("<div id='circle' class='circle start center text'>Click to Start</div>");
@@ -115,7 +124,7 @@
             }
             function updateScore(){
                 sorted = results.slice().sort();
-                $("#times").html("N: " + times + "</br> Median: " + Median(sorted) + "ms</br> Mean: " + Mean(sorted)  + "ms</br> 𝜎: " + std(sorted).toFixed(2));
+                $("#times").html("N: " + times + "</br> Median: " + Median(sorted) + "ms</br> Mean: " + Mean(sorted)  + "ms</br> 𝜎: " + std(sorted).toFixed(2) +"<br><button onclick='saveScores();'>Save Scores</button>");
             }
 
             function Mean(res) {
@@ -213,6 +222,7 @@
     </head>
     <body>
         <div id="times" class="times">N: 0 </br>  Median: 0ms </br> Mean: 0ms </br> 𝜎: 0</div>
+        
         <div id="middle"></div>
         </div>
     </body>
